@@ -19,22 +19,66 @@ const HelloWorld = () => {
 
   //called only once
   useEffect(async () => {
+    const message= await loadCurrentMessage();
+    setMessage(message);
+    addSmartContractListener();
+
+
+    const {address, status} = await getCurrentWalletConnected();
+    setWallet(address);
+    setStatus(status);
+
+addWalletListener();
     
   }, []);
 
-  function addSmartContractListener() { //TODO: implement
-    
+  function addSmartContractListener() {
+    helloWorldContract.events.UpdatedMessages({}, (error, data) => {
+      if (error) {
+        setStatus("😥 " + error.message);
+      } else {
+        setMessage(data.returnValues[1]);
+        setNewMessage("");
+        setStatus("🎉 Your message has been updated!");
+      }
+    });
   }
+  
+  
 
   function addWalletListener() { //TODO: implement
-    
+if(window.ethereum){
+  window.ethereum.on("accountsChanged") 
+}else{
+  return {
+    address: "",
+    status: "🦊 Connect to Metamask using the top right button.",
+  };
+}
   }
 
   const connectWalletPressed = async () => { //TODO: implement
-    
+    const walletResponse = await connectWallet();
+    setStatus(walletResponse.status)
+    setWallet(walletResponse.address)
   };
 
-  const onUpdatePressed = async () => { //TODO: implement
+
+  export const updateMessage = async (address, message) => {
+      if (!window.ethereum || address === null) {
+        return {
+          status:
+            "💡 Connect your Metamask wallet to update the message on the blockchain.",
+        };
+      }
+    
+      if (message.trim() === "") {
+        return {
+          status: "❌ Your message cannot be an empty string.",
+        };
+      }
+    };
+    
     
   };
 
